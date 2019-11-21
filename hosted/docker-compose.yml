@@ -1,0 +1,30 @@
+version: '2'
+services:
+  mean: 
+    image: trestletech/plumber
+    command: '/examples/04-mean-sum/plumber.R'
+    volumes:
+     - ../examples:/examples
+    restart: always
+  welcome: 
+    image: trestletech/plumber
+    command: '/examples/10-welcome/plumber.R'
+    volumes:
+     - ../examples:/examples
+    restart: always
+  lb:
+    image: 'dockercloud/haproxy:1.2.1'
+    links:
+      - mean
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+  nginx:
+    image: nginx:1.9
+    ports:
+     - "80:80"
+    volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: always
+    depends_on: 
+     - mean
+     - welcome
